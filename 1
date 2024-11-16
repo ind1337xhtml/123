@@ -1,0 +1,99 @@
+-- UI Library Module
+local UILibrary = {}
+
+-- Fonction pour créer une interface utilisateur principale
+function UILibrary:CreateMainUI(title)
+    -- ScreenGui
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- Frame principale
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Parent = ScreenGui
+    MainFrame.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
+    MainFrame.BorderColor3 = Color3.fromRGB(170, 170, 170)
+    MainFrame.BorderSizePixel = 2
+    MainFrame.Position = UDim2.new(0.3, 0, 0.1, 0)
+    MainFrame.Size = UDim2.new(0, 554, 0, 621)
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+
+    -- Barre supérieure
+    local TopBar = Instance.new("Frame")
+    TopBar.Name = "TopBar"
+    TopBar.Parent = MainFrame
+    TopBar.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
+    TopBar.BorderColor3 = Color3.fromRGB(170, 170, 170)
+    TopBar.BorderSizePixel = 2
+    TopBar.Position = UDim2.new(0, 0, -0.05, 0)
+    TopBar.Size = UDim2.new(0, 554, 0, 30)
+
+    -- Titre
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Name = "Title"
+    TitleLabel.Parent = TopBar
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Position = UDim2.new(0.01, 0, 0, 0)
+    TitleLabel.Size = UDim2.new(0, 100, 0, 30)
+    TitleLabel.Font = Enum.Font.SourceSans
+    TitleLabel.Text = title
+    TitleLabel.TextColor3 = Color3.fromRGB(85, 170, 255)
+    TitleLabel.TextSize = 14
+
+    -- Retourne le ScreenGui et le MainFrame pour ajouter d'autres éléments
+    return ScreenGui, MainFrame
+end
+
+-- Fonction pour ajouter une section à la UI
+function UILibrary:AddSection(mainFrame, sectionName, size, position)
+    local Section = Instance.new("Frame")
+    Section.Name = sectionName
+    Section.Parent = mainFrame
+    Section.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
+    Section.BorderColor3 = Color3.fromRGB(170, 170, 170)
+    Section.BorderSizePixel = 2
+    Section.Position = position or UDim2.new(0, 0, 0, 0)
+    Section.Size = size or UDim2.new(0, 543, 0, 53)
+
+    return Section
+end
+
+-- Fonction pour ajouter une étiquette de texte
+function UILibrary:AddLabel(parent, text, position, size, color)
+    local Label = Instance.new("TextLabel")
+    Label.Name = "Label"
+    Label.Parent = parent
+    Label.BackgroundTransparency = 1
+    Label.Position = position or UDim2.new(0, 0, 0, 0)
+    Label.Size = size or UDim2.new(0, 100, 0, 30)
+    Label.Font = Enum.Font.SourceSans
+    Label.Text = text
+    Label.TextColor3 = color or Color3.fromRGB(255, 255, 255)
+    Label.TextSize = 14
+
+    return Label
+end
+
+-- Fonction pour ajouter un compteur de FPS
+function UILibrary:AddFPSCounter(parent)
+    local FpsLabel = self:AddLabel(parent, "FPS: 0", UDim2.new(0.9, 0, 0, 0), UDim2.new(0, 50, 0, 30), Color3.fromRGB(85, 170, 255))
+
+    local runService = game:GetService("RunService")
+    local lastUpdate = tick()
+    local frames = 0
+
+    runService.RenderStepped:Connect(function()
+        frames = frames + 1
+        local now = tick()
+        if now - lastUpdate >= 1 then
+            local fps = math.floor(frames / (now - lastUpdate))
+            FpsLabel.Text = "FPS: " .. fps
+            frames = 0
+            lastUpdate = now
+        end
+    end)
+end
+
+return UILibrary
