@@ -1,99 +1,83 @@
 -- UI Library Module
-local UILibrary = {}
+local UI = {}
 
--- Fonction pour créer une interface utilisateur principale
-function UILibrary:CreateMainUI(title)
-    -- ScreenGui
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-    -- Frame principale
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui
-    MainFrame.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
-    MainFrame.BorderColor3 = Color3.fromRGB(170, 170, 170)
-    MainFrame.BorderSizePixel = 2
-    MainFrame.Position = UDim2.new(0.3, 0, 0.1, 0)
-    MainFrame.Size = UDim2.new(0, 554, 0, 621)
-    MainFrame.Active = true
-    MainFrame.Draggable = true
-
-    -- Barre supérieure
-    local TopBar = Instance.new("Frame")
-    TopBar.Name = "TopBar"
-    TopBar.Parent = MainFrame
-    TopBar.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
-    TopBar.BorderColor3 = Color3.fromRGB(170, 170, 170)
-    TopBar.BorderSizePixel = 2
-    TopBar.Position = UDim2.new(0, 0, -0.05, 0)
-    TopBar.Size = UDim2.new(0, 554, 0, 30)
-
-    -- Titre
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Name = "Title"
-    TitleLabel.Parent = TopBar
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Position = UDim2.new(0.01, 0, 0, 0)
-    TitleLabel.Size = UDim2.new(0, 100, 0, 30)
-    TitleLabel.Font = Enum.Font.SourceSans
-    TitleLabel.Text = title
-    TitleLabel.TextColor3 = Color3.fromRGB(85, 170, 255)
-    TitleLabel.TextSize = 14
-
-    -- Retourne le ScreenGui et le MainFrame pour ajouter d'autres éléments
-    return ScreenGui, MainFrame
+-- Function to create a ScreenGui
+function UI:createScreenGui(parent, name)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = parent or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    screenGui.Name = name or "ScreenGui"
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    return screenGui
 end
 
--- Fonction pour ajouter une section à la UI
-function UILibrary:AddSection(mainFrame, sectionName, size, position)
-    local Section = Instance.new("Frame")
-    Section.Name = sectionName
-    Section.Parent = mainFrame
-    Section.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
-    Section.BorderColor3 = Color3.fromRGB(170, 170, 170)
-    Section.BorderSizePixel = 2
-    Section.Position = position or UDim2.new(0, 0, 0, 0)
-    Section.Size = size or UDim2.new(0, 543, 0, 53)
-
-    return Section
+-- Function to create a Frame
+function UI:createFrame(parent, size, position, bgColor, borderSize)
+    local frame = Instance.new("Frame")
+    frame.Parent = parent
+    frame.Size = size or UDim2.new(0, 200, 0, 100)
+    frame.Position = position or UDim2.new(0, 0, 0, 0)
+    frame.BackgroundColor3 = bgColor or Color3.fromRGB(33, 33, 33)
+    frame.BorderSizePixel = borderSize or 2
+    return frame
 end
 
--- Fonction pour ajouter une étiquette de texte
-function UILibrary:AddLabel(parent, text, position, size, color)
-    local Label = Instance.new("TextLabel")
-    Label.Name = "Label"
-    Label.Parent = parent
-    Label.BackgroundTransparency = 1
-    Label.Position = position or UDim2.new(0, 0, 0, 0)
-    Label.Size = size or UDim2.new(0, 100, 0, 30)
-    Label.Font = Enum.Font.SourceSans
-    Label.Text = text
-    Label.TextColor3 = color or Color3.fromRGB(255, 255, 255)
-    Label.TextSize = 14
-
-    return Label
+-- Function to create a TextLabel
+function UI:createTextLabel(parent, text, font, size, color, position, sizeX)
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Parent = parent
+    textLabel.Text = text or "Text"
+    textLabel.Font = font or Enum.Font.SourceSans
+    textLabel.TextSize = size or 14
+    textLabel.TextColor3 = color or Color3.fromRGB(255, 255, 255)
+    textLabel.Position = position or UDim2.new(0, 0, 0, 0)
+    textLabel.Size = sizeX or UDim2.new(0, 200, 0, 50)
+    textLabel.BackgroundTransparency = 1
+    return textLabel
 end
 
--- Fonction pour ajouter un compteur de FPS
-function UILibrary:AddFPSCounter(parent)
-    local FpsLabel = self:AddLabel(parent, "FPS: 0", UDim2.new(0.9, 0, 0, 0), UDim2.new(0, 50, 0, 30), Color3.fromRGB(85, 170, 255))
-
+-- Function to create an FPS counter TextLabel
+function UI:createFpsCounter(parent, position)
+    local fpsLabel = self:createTextLabel(parent, "FPS: 0", Enum.Font.SourceSans, 14, Color3.fromRGB(85, 170, 255), position or UDim2.new(0.904, 0, 0, 0))
     local runService = game:GetService("RunService")
     local lastUpdate = tick()
     local frames = 0
-
+    
     runService.RenderStepped:Connect(function()
         frames = frames + 1
         local now = tick()
         if now - lastUpdate >= 1 then
             local fps = math.floor(frames / (now - lastUpdate))
-            FpsLabel.Text = "FPS: " .. fps
+            fpsLabel.Text = "FPS: " .. fps
             frames = 0
             lastUpdate = now
         end
     end)
+    return fpsLabel
 end
 
-return UILibrary
+-- Function to create a customizable UI container with a top bar, FPS counter, and a title
+function UI:createCustomUI()
+    -- Create the main ScreenGui
+    local screenGui = self:createScreenGui(game.Players.LocalPlayer:WaitForChild("PlayerGui"), "CustomUI")
+    
+    -- Create the outer frame
+    local outerFrame = self:createFrame(screenGui, UDim2.new(0, 554, 0, 621), UDim2.new(0.293, 0, 0.118, 0), Color3.fromRGB(33, 33, 33), 2)
+    
+    -- Create the top bar
+    local topBar = self:createFrame(outerFrame, UDim2.new(0, 554, 0, 30), UDim2.new(0, 0, -0.062, 0), Color3.fromRGB(33, 33, 33), 2)
+    
+    -- Create text labels for "Cheats" and "Mango" sections
+    self:createTextLabel(topBar, "Cheats", Enum.Font.SourceSans, 14, Color3.fromRGB(255, 85, 255), UDim2.new(0.071, 0, -0.029, 0))
+    self:createTextLabel(topBar, "Mango", Enum.Font.SourceSans, 14, Color3.fromRGB(85, 170, 255), UDim2.new(0.008, 0, -0.029, 0))
+    
+    -- Create FPS counter
+    self:createFpsCounter(topBar, UDim2.new(0.904, 0, -0.029, 0))
+    
+    -- Create additional frames within the UI
+    local frame1 = self:createFrame(outerFrame, UDim2.new(0, 543, 0, 53), UDim2.new(0.009, 0, 0.012, 0), Color3.fromRGB(33, 33, 33), 2)
+    local frame2 = self:createFrame(outerFrame, UDim2.new(0, 543, 0, 541), UDim2.new(0.009, 0, 0.119, 0), Color3.fromRGB(33, 33, 33), 2)
+
+    return screenGui
+end
+
+return UI
